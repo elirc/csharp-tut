@@ -185,7 +185,8 @@ public class WeatherService
         try
         {
             // Async HTTP call — thread is freed while waiting:
-            var response = await _http.GetAsync($"/weather?city={city}", ct);
+            // Escape user input before putting it in a URL ("São Paulo", "a&b=c"):
+            var response = await _http.GetAsync($"/weather?city={Uri.EscapeDataString(city)}", ct);
             response.EnsureSuccessStatusCode();
 
             // Async deserialization:

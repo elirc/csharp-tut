@@ -78,7 +78,8 @@ string definitely = maybe!;          // "trust me, it's not null"
 
 // Common legit uses:
 _field = null!;                       // will be set before use (e.g., by a framework/DI)
-var item = list.First(x => x.Id == id)!;  // you know it exists
+var item = list.FirstOrDefault(x => x.Id == id)!;  // you know it exists
+// (First(...) needs no '!' — it already returns non-null T and throws if nothing matches)
 ```
 
 **`!` does not change runtime behavior** — it only silences the compiler. If you're wrong, you still get an NRE at runtime. Overusing `!` defeats the entire feature. Each `!` should make you ask "can I restructure so this is provably non-null instead?"

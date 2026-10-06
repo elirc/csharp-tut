@@ -13,7 +13,7 @@ Modern .NET (formerly ".NET Core", now just **.NET 8**, **.NET 9**, etc.) is cro
 
 ## Install the SDK
 
-Install the latest **.NET SDK** (8.0 LTS or newer) from https://dotnet.microsoft.com/download. The SDK includes the compiler, runtime, and the `dotnet` CLI.
+Install the latest **.NET SDK** from https://dotnet.microsoft.com/download — today that means **.NET 10 (LTS)**. The samples in this tutorial show `net8.0` and run unchanged on 8.0 or newer, but .NET 8 support ends in November 2026, so set `TargetFramework` to whatever `dotnet new` generates for you. The SDK includes the compiler, runtime, and the `dotnet` CLI.
 
 Verify:
 
@@ -69,7 +69,7 @@ Hello/
 ```
 
 Key properties:
-- `TargetFramework` — which .NET version you build against (`net8.0`).
+- `TargetFramework` — which .NET version you build against (`net8.0` here; `net10.0` on a current SDK).
 - `ImplicitUsings` — auto-imports common namespaces (`System`, `System.Collections.Generic`, etc.) so you don't write `using System;` everywhere.
 - `Nullable` — enables nullable reference type checking (Chapter 15). Keep it `enable`.
 

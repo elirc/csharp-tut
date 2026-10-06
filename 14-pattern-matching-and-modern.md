@@ -243,7 +243,7 @@ public decimal ShippingCost(Parcel p) => p switch
 ## Exercises
 
 1. Rewrite an HTTP-status-to-message mapping as a switch expression with relational patterns (2xx/3xx/4xx/5xx).
-2. Write a `Describe(object value)` using a type-pattern switch handling `int`, `string`, `null`, `IEnumerable<int>` (empty vs non-empty via list pattern), and a fallback.
+2. Write a `Describe(object value)` using a type-pattern switch handling `int`, `string`, `null`, `int[]` (empty vs non-empty via list pattern), and a fallback. (Use `int[]`, not `IEnumerable<int>`: list patterns only work on types with an indexer and `Length`/`Count`, so `IEnumerable<int> is []` does not compile.)
 3. Use a property pattern to compute a loyalty tier from a `Customer` record's `OrderCount` and `TotalSpend`.
 4. Use a tuple pattern to implement a small state machine: given `(currentState, event)`, return the next state.
 

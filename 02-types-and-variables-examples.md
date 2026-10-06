@@ -216,7 +216,7 @@ Boxing wraps a value type as an object, and unboxing requires a cast back to the
 | 28 | `int zero = default;` | `default` for int is `0`. |
 | 29 | `string? missing = default;` | `default` for nullable reference types is null. |
 | 30 | `var amount = 10m;` | The suffix makes the inferred type `decimal`. |
-| 31 | `var ratio = 0.75;` | A floating-point literal without suffix usually infers `double`. |
+| 31 | `var ratio = 0.75;` | A floating-point literal without a suffix is always `double`. |
 | 32 | `string text = "hello";` | Strings are reference types with immutable contents. |
 | 33 | `bool same = string.Equals(a, b, StringComparison.OrdinalIgnoreCase);` | Compares strings with an explicit comparison rule. |
 | 34 | `string joined = string.Join(", ", names);` | Combines many strings with a separator. |
@@ -245,4 +245,4 @@ Boxing wraps a value type as an object, and unboxing requires a cast back to the
 | 57 | `nint nativeInt = 5;` | Stores an integer sized for the current platform. |
 | 58 | `byte b = 0b_1010_0001;` | Uses a binary numeric literal. |
 | 59 | `int mask = 0xFF;` | Uses a hexadecimal numeric literal. |
-| 60 | `checked { int x = int.MaxValue + 1; }` | Requests overflow checking for integer arithmetic. |
+| 60 | `int big = int.MaxValue; checked { big++; }` | Requests overflow checking: throws `OverflowException` at runtime. (Writing `int.MaxValue + 1` directly is a compile error, because constant overflow is always caught.) |

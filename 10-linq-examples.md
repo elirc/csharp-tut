@@ -169,12 +169,13 @@ var pageTwo = items.Skip(10).Take(10);
 ## Example 20 - Deferred execution
 
 ```csharp
-var query = numbers.Where(n => n > 2);
-numbers = new[] { 10, 20 };
-Console.WriteLine(string.Join(", ", query));
+var source = new List<int> { 1, 2, 3, 4 };
+var query = source.Where(n => n > 2);
+source.Add(10);
+Console.WriteLine(string.Join(", ", query)); // 3, 4, 10
 ```
 
-Many LINQ queries run when enumerated, not when the query variable is created.
+`Where` runs when the query is enumerated, so it sees the item added afterwards. Note what it does *not* see: reassigning the variable (`source = new List<int> { 99 };`) would still print `3, 4, 10`, because the query captured the original list object, not the variable.
 
 Helper records used above:
 
@@ -195,7 +196,7 @@ public record Customer(int Id, string Name);
 | 25 | `orders.SelectMany(o => o.Lines)` | Flattens child collections from many parent objects. |
 | 26 | `items.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)` | Sorts strings with an explicit comparer. |
 | 27 | `items.OrderByDescending(x => x.CreatedAt)` | Sorts newest items first. |
-| 28 | `items.Reverse()` | Reverses the current sequence order. |
+| 28 | `items.Reverse()` | Reverses the sequence order lazily. If `items` is an array, C# 14 binds this to the in-place span `Reverse` instead — see the note in Chapter 10. |
 | 29 | `items.FirstOrDefault()` | Returns the first item or the default value. |
 | 30 | `items.SingleOrDefault(x => x.Id == id)` | Expects zero or one matching item. |
 | 31 | `items.Last(x => x.Active)` | Finds the last active item. |

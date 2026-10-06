@@ -197,7 +197,7 @@ double d = i;     // int -> double — automatic
 double d = 9.99;
 int i = (int)d;        // 9 — truncates the fraction (does NOT round)
 long big = 5_000_000_000L;
-int overflow = (int)big;   // garbage — value doesn't fit; wraps around silently
+int overflow = (int)big;   // 705032704 — keeps only the low 32 bits; no error (unchecked by default)
 ```
 
 A cast says "I know this might lose data; do it anyway."
@@ -230,7 +230,7 @@ Every type has `.ToString()`. Numbers and dates accept format strings:
 int n = 1234567;
 n.ToString();          // "1234567"
 n.ToString("N0");      // "1,234,567"
-(0.85).ToString("P0"); // "85 %"
+(0.85).ToString("P0"); // "85%" in en-US — format output depends on the current culture
 DateTime.Now.ToString("yyyy-MM-dd");  // "2026-06-12"
 ```
 

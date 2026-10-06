@@ -139,8 +139,11 @@ var c = new Customer("Ann", "ann@x.com") { CreatedAt = DateTime.UtcNow };
 `record struct` is a record that's a value type (copied by value). Use for small value-like data where you want value semantics and low allocation:
 
 ```csharp
-public record struct Point(int X, int Y);
+public record struct Point(int X, int Y);          // X and Y are get; set; — mutable!
+public readonly record struct Pixel(int X, int Y); // X and Y are get; init; — immutable
 ```
+
+Watch the asymmetry: a positional `record` (class) gets `init`-only properties, but a positional `record struct` gets ordinary **settable** properties. Add `readonly` when you want the immutable value the guidance below recommends.
 
 ### Records vs classes — when to use which
 
@@ -174,7 +177,7 @@ Honestly, in typical CRUD/business code, **rarely**. Use a struct only when:
 - It's immutable (mutable structs are a well-known footgun — copies make mutations "disappear").
 - You have performance reasons to avoid heap allocations.
 
-Examples in the BCL: `int`, `double`, `DateTime`, `TimeSpan`, `Guid`, `decimal` are all structs. For your own data, prefer a `record` (class) unless you specifically need value-type behavior, in which case `record struct` gives you the nice record features with value semantics.
+Examples in the BCL: `int`, `double`, `DateTime`, `TimeSpan`, `Guid`, `decimal` are all structs. For your own data, prefer a `record` (class) unless you specifically need value-type behavior, in which case `readonly record struct` gives you the nice record features with value semantics.
 
 ### The mutable struct trap
 
@@ -233,7 +236,7 @@ var (amt, cur) = new Money { Amount = 9.99m };
 | Combinable options (bit flags) | `[Flags] enum` |
 | Immutable data with value equality | `record` |
 | Entity with identity + behavior | `class` |
-| Small immutable value, perf-sensitive | `record struct` / `struct` |
+| Small immutable value, perf-sensitive | `readonly record struct` / `readonly struct` |
 | Throwaway multi-value group | tuple |
 
 ## Exercises

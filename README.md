@@ -10,6 +10,12 @@ Read in order. Each chapter builds on the last. **Type the code yourself** — d
 
 Every code sample is meant to be runnable. Chapter 0 shows you how to create and run a project.
 
+Chapters 00–18 each have a companion `NN-topic-examples.md` file (20 worked snippets plus a table of 40 one-liners) for repetition; chapters 19–24 have no examples file. [Chapter 24](./24-learning-with-examples-to-mid-level.md) explains how to work through them in passes.
+
+## Sibling tracks in this repo
+
+The same lesson + `-examples.md` format continues in five other folders, each with its own README and chapters 00–17: [dotnet-tutorial/](./dotnet-tutorial/README.md) (the platform: CLI, hosting, DI, EF Core, deployment), [javascript-tutorial/](./javascript-tutorial/README.md), [nodejs-tutorial/](./nodejs-tutorial/README.md), [react-tutorial/](./react-tutorial/README.md) and [typescript-tutorial/](./typescript-tutorial/README.md). For a C# backend path, do this tutorial first, then `dotnet-tutorial/`.
+
 ## Table of contents
 
 ### Part 1 — The language core

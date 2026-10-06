@@ -21,7 +21,7 @@ var result2 = (from n in nums
                select n).ToList();
 ```
 
-Both give `{5, 8, 9}` sorted -> `{5, 8, 9}`. We'll use method syntax throughout.
+Both give `[5, 8, 9]`. We'll use method syntax throughout.
 
 ## The mental model
 
@@ -111,7 +111,7 @@ bool allAdults = people.All(p => p.Age >= 18);    // do all match?
 bool hasBob = names.Contains("Bob");
 ```
 
-`Any()` is the idiomatic "is it non-empty?" check — cheaper and clearer than `Count() > 0` (which iterates the whole thing).
+`Any()` is the idiomatic "is it non-empty?" check — clearer than `Count() > 0`, and never slower: `Count()` is only O(1) when the source is a collection that already knows its count (e.g. `List<T>`, arrays); on a lazy query or a database query it walks or counts everything.
 
 ## Counting and aggregation
 
@@ -205,6 +205,8 @@ nums.Chunk(100);                 // split into batches of 100 (great for bulk op
 nums.Reverse();
 ```
 
+> **C# 14 / .NET 10 gotcha:** when `nums` is an **array**, `nums.Reverse()` now binds to `MemoryExtensions.Reverse(Span<T>)`, which reverses the array *in place* and returns nothing — not LINQ's lazy `Enumerable.Reverse`. If you want a reversed sequence without touching the array, call `Enumerable.Reverse(nums)` explicitly.
+
 `Skip`/`Take` are how you implement **pagination**: `query.Skip((page - 1) * size).Take(size)`.
 
 ## Materializing: `ToList`, `ToArray`, and deferred execution
@@ -263,7 +265,7 @@ bool canFulfill = order.Lines.All(line => inventory[line.Sku] >= line.Quantity);
 
 ## Common mistakes (avoid these)
 
-1. **Calling `.Count() > 0` instead of `.Any()`** — `Any()` stops at the first element; `Count()` walks the whole sequence.
+1. **Calling `.Count() > 0` instead of `.Any()`** — `Any()` stops at the first element; `Count()` walks the whole sequence unless the source is a collection with a stored count.
 2. **`First()` when the sequence might be empty** — use `FirstOrDefault()` and null-check, or you get `InvalidOperationException`.
 3. **Enumerating an expensive/DB query multiple times** — `ToList()` once and reuse.
 4. **Doing work inside `Select` that has side effects** — keep projections pure; LINQ may run them lazily or repeatedly.

@@ -193,10 +193,18 @@ var customer2 = await _db.Customers
 If you load a list and then access each item's navigation property in a loop *without* `Include`, EF fires a separate query per item — 1 query for the list + N for the children = "N+1 queries." On a list of 100, that's 101 round-trips.
 
 ```csharp
-// ❌ N+1: one query for customers, then one per customer for orders
+// ❌ N+1: one query for customers, then one query per customer for its orders
 var customers = await _db.Customers.ToListAsync();
 foreach (var c in customers)
-    Console.WriteLine(c.Orders.Count);   // triggers a query each iteration (if lazy loading on)
+{
+    int orderCount = await _db.Orders.CountAsync(o => o.CustomerId == c.Id);  // 1 query per loop
+    Console.WriteLine(orderCount);
+}
+
+// ⚠️ The tempting version — c.Orders.Count without Include — is not N+1 by default:
+// lazy loading is OFF unless you install Microsoft.EntityFrameworkCore.Proxies and
+// call UseLazyLoadingProxies(). Without it, c.Orders is just empty and prints 0 —
+// a silent wrong answer. With lazy loading on, it becomes the classic N+1.
 
 // ✅ One query with the join:
 var customers = await _db.Customers.Include(c => c.Orders).ToListAsync();
@@ -225,7 +233,7 @@ Use `AsNoTracking()` for GET endpoints and reports. Use tracked queries when you
 
 ## Client vs server evaluation — the crucial gotcha
 
-EF translates LINQ to SQL. If you call something it **can't** translate, older EF would silently run it in memory (slow); modern EF **throws** instead. Rule: **keep `Where`/`OrderBy`/`Select` expressions translatable** (simple comparisons, string methods EF knows). If you need a C# method it can't translate, materialize first with `ToListAsync()`, then do the in-memory work with LINQ-to-Objects:
+EF translates LINQ to SQL. If you call something it **can't** translate, older EF (before Core 3.0) would silently run it in memory (slow); modern EF **throws** instead. The one exception is the *final* `Select`: EF Core will run an untranslatable method there on the client after fetching the rows — but a `Where`/`OrderBy` it can't translate always throws. Rule: **keep `Where`/`OrderBy`/`Select` expressions translatable** (simple comparisons, string methods EF knows). If you need a C# method it can't translate, materialize first with `ToListAsync()`, then do the in-memory work with LINQ-to-Objects:
 
 ```csharp
 // This C# method can't be turned into SQL:
@@ -262,7 +270,7 @@ catch
 
 ## Concurrency (brief but important)
 
-If two users edit the same row, the second can overwrite the first ("lost update"). EF supports **optimistic concurrency** via a `[Timestamp]`/`rowversion` column: on save, EF checks the row hasn't changed since you loaded it and throws `DbUpdateConcurrencyException` if it has, so you can handle the conflict. Add a `public byte[] RowVersion { get; set; }` with `.IsRowVersion()` configuration when you need it. Just know the concept exists — naive "load, edit, save" has a race condition under concurrency.
+If two users edit the same row, the second can overwrite the first ("lost update"). EF supports **optimistic concurrency** via a `[Timestamp]`/`rowversion` column: on save, EF checks the row hasn't changed since you loaded it and throws `DbUpdateConcurrencyException` if it has, so you can handle the conflict. On SQL Server, add a `public byte[] RowVersion { get; set; } = null!;` with `.IsRowVersion()` configuration when you need it; the database bumps it on every update. SQLite has no `rowversion` type, so there you mark an ordinary property (e.g. an `int Version`) with `.IsConcurrencyToken()` and increment it yourself before saving. Just know the concept exists — naive "load, edit, save" has a race condition under concurrency.
 
 ## Practical patterns
 
@@ -307,7 +315,7 @@ public class CustomerService(ShopDbContext db, ILogger<CustomerService> logger)
 1. Set up a SQLite-backed `ShopDbContext` with `Customer` and `Order`, add a migration, and apply it.
 2. Implement full CRUD for `Customer` (add, get by id, list with pagination, update email, delete) — all async, projecting to a DTO on reads.
 3. Create a customer with three orders, then load the customer *with* orders using `Include`, and print the total. Then write the same as an efficient projection.
-4. Demonstrate the N+1 problem (turn on query logging via `options.LogTo(Console.WriteLine)`), then fix it with `Include`/projection and observe the query count drop.
+4. Demonstrate the N+1 problem: turn on query logging (`options.LogTo(Console.WriteLine)`), seed 5 customers, and run the per-customer `CountAsync` loop above — you should see 6 SELECTs logged. Rewrite it as the `Select(c => new { c.Name, OrderCount = c.Orders.Count })` projection and confirm the log shows a single SELECT. Then try `c.Orders.Count` without `Include` and explain why it prints 0.
 
 ---
 

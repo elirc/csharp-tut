@@ -213,7 +213,7 @@ foreach (int n in Fibonacci(10))
     Console.WriteLine(n);          // 0 1 1 2 3 5 8 13 21 34
 ```
 
-`yield` enables **lazy evaluation**: values are computed one at a time as the consumer asks. This is exactly how LINQ works under the hood (next chapter). It lets you process huge or infinite sequences without materializing them all.
+`yield` enables **lazy evaluation**: values are computed one at a time as the consumer asks. This is exactly how LINQ works under the hood (Chapter 10). It lets you process huge or infinite sequences without materializing them all.
 
 ## A note on thread safety
 

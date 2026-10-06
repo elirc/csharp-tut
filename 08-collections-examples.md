@@ -242,4 +242,4 @@ Concurrent collections are designed for multi-threaded access where normal colle
 | 57 | `Enumerable.Repeat("x", 3)` | Produces the same value several times. |
 | 58 | `var immutable = numbers.AsReadOnly();` | Wraps a list in a read-only view. |
 | 59 | `ConcurrentDictionary<string, int> counts = new();` | Provides thread-safe key/value operations. |
-| 60 | `counts.AddOrUpdate("a", 1, (_, old) => old + 1);` | Atomically adds or updates a concurrent dictionary entry. |
+| 60 | `counts.AddOrUpdate("a", 1, (_, old) => old + 1);` | Adds or updates an entry thread-safely. Under contention the update delegate can run more than once, so keep it free of side effects. |
